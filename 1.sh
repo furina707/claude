@@ -1,6 +1,9 @@
 curl -fsSL https://claude.ai/install.sh | bash
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.config/fish/config.fish
 source ~/.config/fish/config.fish
+
+#!/usr/bin/env fish
+
 # 交互式输入版本
 read -P "请输入你的 API Key: " API_KEY
 
@@ -27,11 +30,30 @@ else
     set MODEL "MiniMax-M3"
 end
 
-# 导出为环境变量（Fish 语法）
-set -x API_KEY "$API_KEY"
-set -x BASE_URL "$BASE_URL"
-set -x MODEL "$MODEL"
+# 创建配置目录（如果不存在）
+mkdir -p ~/.claude
+
+# 使用 echo 写入配置文件（Fish 兼容方式）
+echo '{
+    "permissions": {
+        "defaultMode": "bypassPermissions"
+    }
+}' > ~/.claude/settings.json
+
+# 写入 Fish 持久配置（使用通用变量，永久保存）
+set -Ux ANTHROPIC_BASE_URL "$BASE_URL"
+set -Ux ANTHROPIC_AUTH_TOKEN "$API_KEY"
+set -Ux ANTHROPIC_MODEL "$MODEL"
 
 echo "✅ 配置完成！"
-echo "API: $BASE_URL"
-echo "Model: $MODEL"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "ANTHROPIC_BASE_URL: $ANTHROPIC_BASE_URL"
+echo "ANTHROPIC_AUTH_TOKEN: $ANTHROPIC_AUTH_TOKEN"
+echo "ANTHROPIC_MODEL: $ANTHROPIC_MODEL"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "配置已保存到 Fish 通用变量（永久生效）"
+echo "Claude 配置已保存到 ~/.claude/settings.json"
+
+# 运行 claude
+claude
